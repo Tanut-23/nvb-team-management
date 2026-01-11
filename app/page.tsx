@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ConfirmDeleteDialog } from "@/components/ui/ConfirmDeleteDialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Calendar } from "@/components/ui/calendar"
+import RemoveIcon from '@mui/icons-material/Remove';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
@@ -76,6 +78,9 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 export default function ChurchScheduleApp() {
   // SWR for data fetching
+  const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false)
+const [isDeletingAll, setIsDeletingAll] = useState(false)
+
   const { data: members = [], error: membersError } = useSWR<Member[]>("/api/members", fetcher)
   const { data: teams = [], error: teamsError } = useSWR<Team[]>("/api/teams", fetcher)
   const { data: schedules = [], error: schedulesError } = useSWR<Schedule[]>("/api/schedules", fetcher)
@@ -307,11 +312,29 @@ export default function ChurchScheduleApp() {
     }
   }
 
-  const handleCellClick = (scheduleId: string, position: string) => {
-    setEditingCell({ scheduleId, position })
-    setCellError(null)
-    setComboboxOpen(true)
+  const handleDeleteAllTable = async () => {
+    if (!activeTeamId) return
+  
+    setIsDeletingAll(true)
+    try {
+      const res = await fetch("/api/schedules/clear", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teamId: activeTeamId }),
+      })
+  
+      if (!res.ok) throw new Error()
+  
+      mutate("/api/schedules")
+      setIsDeleteAllOpen(false)
+    } catch {
+      setError("ไม่สามารถลบตารางของทีมนี้ได้")
+    } finally {
+      setIsDeletingAll(false)
+    }
   }
+  
+  
 
   const handleMemberSelect = useCallback(
     async (memberName: string) => {
@@ -593,8 +616,13 @@ export default function ChurchScheduleApp() {
                     </DropdownMenu>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
+                  <Button variant="outline" size="sm" className="bg-red-500" onClick={() => setIsDeleteAllOpen(true)} >
+                          <RemoveIcon className="mr-2 h-4 w-4 " />
+                          ลบทั้งหมด
+                        </Button>
                     <Dialog open={isAddPositionOpen} onOpenChange={setIsAddPositionOpen}>
                       <DialogTrigger asChild>
+                        
                         <Button variant="outline" size="sm">
                           <Plus className="mr-2 h-4 w-4" />
                           เพิ่มตำแหน่ง
@@ -898,6 +926,14 @@ export default function ChurchScheduleApp() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <ConfirmDeleteDialog
+  open={isDeleteAllOpen}
+  onClose={() => setIsDeleteAllOpen(false)}
+  onConfirm={handleDeleteAllTable}
+  teamName={activeTeam?.name}
+  loading={isDeletingAll}
+/>
+
     </div>
   )
 }

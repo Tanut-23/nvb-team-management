@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@aws-sdk/credential-providers": "latest",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^3.10.0",
     "@mongodb-js/zstd": "latest",
+    "@mui/icons-material": "^7.3.7",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
