@@ -682,7 +682,7 @@ export default function ChurchScheduleApp() {
                           <table className="w-full border-collapse">
                             <thead>
                               <tr className="bg-muted/50">
-                                <th className="border p-3 text-left font-semibold min-w-[120px] sticky left-0 bg-muted/50">
+                                <th className="border p-3 text-left font-semibold min-w-[120px] left-0 bg-muted/50">
                                   วันที่
                                 </th>
                                 {team.positions.map((position) => (
