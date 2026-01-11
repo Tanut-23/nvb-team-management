@@ -727,7 +727,7 @@ export default function ChurchScheduleApp() {
                                     key={schedule.id}
                                     className={cn(index % 2 === 0 ? "bg-background" : "bg-muted/30")}
                                   >
-                                    <td className="border p-3 font-medium sticky left-0 bg-inherit">
+                                    <td className="border p-3 font-medium left-0 bg-inherit">
                                       {format(new Date(schedule.date), "d MMM yyyy", { locale: th })}
                                     </td>
                                     {team.positions.map((position) => {
